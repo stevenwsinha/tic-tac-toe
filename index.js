@@ -7,7 +7,7 @@ const port = 3003;
 app.set('views', './views');
 app.set('view engine', 'pug');
 
-app.use(parser.urlencoded( { extended: true}))
+app.use(parser.urlencoded({extended: true}) )
 app.use(express.static('./'));
 
 app.get("/ttt/", function(req, res) {
