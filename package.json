@@ -1,5 +1,8 @@
 {
   "dependencies": {
-    "express": "^4.17.2"
+    "b": "^2.0.1",
+    "body-parser": "^1.19.1",
+    "express": "^4.17.2",
+    "pug": "^3.0.2"
   }
 }

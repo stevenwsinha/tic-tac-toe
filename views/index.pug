@@ -1,0 +1,17 @@
+html
+  head
+    title Hello, World 
+    link(rel='stylesheet' href='public/style.css')
+  body
+    h1.para 
+      if name
+       = `Hello ${name}, ${new Date().toDateString()}`
+      else
+       | Welcome!   
+    img(src='public/cat.jpeg' style='width:400px; height:262 px;')
+    form(action='/ttt/', method='POST')
+      div
+        label(name='')
+        input(name='name' value='')
+      div
+        button Submit 
