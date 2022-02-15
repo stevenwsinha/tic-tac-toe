@@ -11,10 +11,12 @@ app.use(parser.urlencoded({extended: true}) )
 app.use(express.static('./'));
 
 app.get("/ttt/", function(req, res) {
+    res.set('X-CSE356', '61f9cee64261123151824fcd');
     res.render('index', {name: ""});
 });
 
 app.post("/ttt/", function(req, res) {
+    res.set('X-CSE356', '61f9cee64261123151824fcd');
     res.render('index', {name: req.body.name});
 });
 
