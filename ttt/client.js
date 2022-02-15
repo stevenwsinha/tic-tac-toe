@@ -1,5 +1,3 @@
-const { request } = require("express");
-
 var httpRequest;
 var board = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
 const url = './ttt/play'
