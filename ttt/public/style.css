@@ -6,3 +6,67 @@ body {
     color: blue
 }
 
+.play-button{
+    border-style: solid;
+    height: 100px;
+    width: 100px;
+    padding: 5px;
+    font-size: 40;
+    font-family: 'Lucida Console';
+    color: lightgoldenrodyellow;
+    background-color: lightpink;
+    border-color: lightgoldenrodyellow;
+    border-width: 0px;
+    box-shadow: none;
+}
+
+#button-0 {
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+}
+
+#button-1 {
+    border-right-width: 2px;
+    border-left-width: 2px;
+    border-bottom-width: 2px;
+}
+
+#button-2 {
+    border-left-width: 2px;
+    border-bottom-width: 2px;
+}
+
+#button-3 {
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+}
+
+#button-4 {
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-left-width: 2px;
+    border-bottom-width: 2px;
+}
+
+#button-5 {
+    border-top-width: 2px;
+    border-left-width: 2px;
+    border-bottom-width: 2px;
+}
+
+#button-6 {
+    border-top-width: 2px;
+    border-right-width: 2px;
+}
+
+#button-7 {
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-left-width: 2px;
+}
+
+#button-8 {
+    border-top-width: 2px;
+    border-left-width: 2px;
+}

@@ -20,6 +20,6 @@ html
         button Submit
     div.board
       each val, index in grid
-        button(type='button' class='play-button' id='button-' + index) #{grid[index]}
+        button(type='button' class='play-button' id='button-' + index) #{grid[index] == ' ' ? '-' : grid[index]}
         if(index % 3 == 2)
           div(class='row' id='row-' + index)
