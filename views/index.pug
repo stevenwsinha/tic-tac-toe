@@ -1,19 +1,25 @@
 html
   head
-    title Hello, World 
+    title tic tac toe 
     link(rel='stylesheet' href='public/style.css')
-    script 
-      let x = 10
   body
-    h1.para 
-      if name
-       = `Hello ${name}, ${new Date().toDateString()}`
-      else
-       | Welcome!   
+    h1(id='title') 
+      | TIC TAC TOE   
+    h2(id='subtitle')
+      | BY SMOGE GROUP 
+    a(href = '/ttt/login')
+      button(type='button' id='login-button') LOGIN 
+    a(href = '/ttt/adduser')
+      button(type='button' id='login-button') REGISTER  
     img(src='public/cat.jpeg' style='width:400px; height:262 px;')
     form(action='/ttt/', method='POST')
       div
         label(name='name')
         input(name='name' value='')
       div
-        button Submit 
+        button Submit
+    div.board
+      each val, index in grid
+        button(type='button' class='play-button' id='button-' + index) #{grid[index]}
+        if(index % 3 == 2)
+          div(class='row' id='row-' + index)
