@@ -4,10 +4,9 @@ const parser = require('body-parser')
 const app = express();
 const port = 3003;
 
-let gameState = ['X', ' ', ' ',
-                 ' ', '0', ' ',  
-                 ' ', ' ', 'X']
-
+let gameState = [' ', ' ', ' ',
+                 ' ', ' ', ' ',  
+                 ' ', ' ', ' ']
 
 app.set('views', './views');
 app.set('view engine', 'pug');
@@ -28,12 +27,14 @@ app.post("/ttt/", function(req, res) {
 });
 
 app.post('/ttt/play', function(req, res) {
+    console
     var ttt_board = req.body.grid;
     var result = playGame(ttt_board);
-   
+    gameState = ttt_board;
+
     res.set('X-CSE356', '61f9cee64261123151824fcd');
     var responseJson = {};
-    responseJson.grid = grid;
+    responseJson.grid = gameState;
     responseJson.winner = result;
     res.set('X-CSE356', '61f9cee64261123151824fcd');
     res.json(responseJson);
@@ -48,11 +49,9 @@ function playGame (grid) {
     if(err !== ' '){
         return err;
     }
-    for(var i = 0; i < 9; i++){
-        if(grid[i] === ' '){
-            grid[i] = 'O';
-        }
-    }
+   
+    grid[4] = 'O'
+    
     err = checkWinner(grid);
     return err;
 }
