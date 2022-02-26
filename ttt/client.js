@@ -49,9 +49,6 @@ function responseHandler(){
 
             // if there's a winner, send an alert
             if(responseJson.winner){
-                
-            }
-            if(responseJson.winner !== ' '){
                 alert(`Winner: ${responseJson.winner}!`);
                 winner = responseJson.winner
             }

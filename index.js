@@ -27,15 +27,23 @@ app.post("/ttt/", function(req, res) {
 });
 
 app.post('/ttt/play', function(req, res) {
-    console
+    // get the board sent by client
     var ttt_board = req.body.grid;
+
+    // make our move, and get the winner
     var result = playGame(ttt_board);
+
+    // save the new board
     gameState = ttt_board;
 
-    res.set('X-CSE356', '61f9cee64261123151824fcd');
+    // create the response object
     var responseJson = {};
     responseJson.grid = gameState;
-    responseJson.winner = result;
+    if(result){
+        responseJson.winner = result;
+    }
+
+    // send the response
     res.set('X-CSE356', '61f9cee64261123151824fcd');
     res.json(responseJson);
 });
@@ -45,15 +53,35 @@ app.listen(port, ()=> {
 })
 
 function playGame (grid) {
-    var err = checkWinner(grid);
-    if(err !== ' '){
-        return err;
+    // check if the player just won, if so return
+    var winner = checkWinner(grid);
+    if(winner !== ' '){
+        return winner;
     }
    
-    grid[4] = 'O'
-    
-    err = checkWinner(grid);
-    return err;
+    // find the open squares
+    let open =[];
+    for(let i = 0; i < 9; i++){
+        if(grid[i] === ' '){
+            open.push(i);
+        }
+    }
+
+    // if there are no open squares, its a tie
+    if (open.length === 0) {
+        return ' ';
+    }
+
+    // otherwise, make a move
+    index = open[Math.floor(Math.random() * open.length)];
+    grid[index] = 'O';
+
+    // check if the server just won
+    winner = checkWinner(grid);
+    if(winner !== ' '){
+        return winner
+    }
+    return undefined;
 }
 
 function checkWinner(grid){
@@ -86,5 +114,6 @@ function checkWinner(grid){
     if(grid[2] === grid[4] && grid[2] === grid[6]){
         return grid[2]
     }
+
     return ' '
 }
