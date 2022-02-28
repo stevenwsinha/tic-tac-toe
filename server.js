@@ -22,6 +22,8 @@ const userSchema = new mongoose.Schema({
     verified: Boolean,
 })
 
+// const User = mongoose.model('User', userSchema);
+
 const gameSchema = new mongoose.Schema({
     grid: [String],
     winner: String,
@@ -29,6 +31,8 @@ const gameSchema = new mongoose.Schema({
     startDate: String, 
     completed: {Boolean, default: false}
 })
+
+// const Game = mongoose.model('Game', gameSchema);
 
 module.exports = { User: mongoose.model('User', userSchema),
                    Game: mongoose.model('Game', gameSchema)

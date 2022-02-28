@@ -2,9 +2,21 @@ const express = require('express');
 const pug = require('pug');
 const parser = require('body-parser')
 const cookieParser = require('cookie-parser')
-const User = require('./server.js')
+const {User} = require('./server.js') 
+const {Game} = require('./server.js');
+const { all } = require('express/lib/application');
 const app = express();
 const port = 3003;
+
+
+// TO DO: 
+// UPDATE POST AT TTT/PLAY TO CONFORM TO NEW GAME STANDARD
+// MAKE A SAVE GAME FUNCTION THAT SAVES A GAME TO THE DB, CALL IT CONDITIONALLY
+// TTT/PLAY POST HANDLER
+
+// MAKE FUNCTIONS THAT FETCH ALL GAMES/ FETCH FROM ONE USER/ FILTER GAMES, ETC 
+// THEY DONT NEED TO BE SEPARATE FUNCTIONS THEY CAN BE INSIDE THE POST RESPONSE 
+// TO THE DIFFERENT ENDPOINTS
 
 /*
  *  CREATE GLOBAL VAR FOR GAME BOARD
@@ -41,10 +53,9 @@ app.post('/adduser', async function(req, res) {
     let {username, password, email} = req.body;
     console.log(`Received verify request for user: ${username} with email: ${email} and password: ${password}`);
 
-    console.log(User)
-
     existingUser = await User.findOne({username: username});
     if(existingUser){
+        console.log("User with that username already exists");
         return res.json({
             status:"ERROR"
         });
