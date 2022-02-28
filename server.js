@@ -20,19 +20,16 @@ const userSchema = new mongoose.Schema({
     password: String,
     email: String,
     verified: Boolean,
-    score: [Number],
 })
 
-// const User = mongoose.model('User', userSchema);
+const gameSchema = new mongoose.Schema({
+    grid: [String],
+    winner: String,
+    owner: String,
+    startDate: String, 
+    completed: {Boolean, default: false}
+})
 
-// const gameSchema = new mongoose.Schema({
-//     grid: [String],
-//     winner: String,
-//     owner: String,
-//     startDate: String, 
-//     completed: {Boolean, default: false}
-// })
-
-// const Game = mongoose.model('Game', gameSchema);
-
-module.exports = mongoose.model('User', userSchema)
+module.exports = { User: mongoose.model('User', userSchema),
+                   Game: mongoose.model('Game', gameSchema)
+                 }
