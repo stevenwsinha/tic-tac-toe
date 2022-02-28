@@ -1,6 +1,7 @@
 const express = require('express');
 const pug = require('pug');
 const parser = require('body-parser')
+const cookieParser = require('cookie-parser')
 const User = require('./server.js')
 const app = express();
 const port = 3003;
@@ -20,24 +21,25 @@ app.set('views', './views');
 app.set('view engine', 'pug');
 
 app.use(parser.json());
+app.use(cookieParser());
 
 app.use(express.static('./'));
 
 app.get("/ttt/play", function(req, res) {
-    res.set('X-CSE356', '61f9cee64261123151824fcd');
+    res.set('X-CSE356', '620bd941dd38a6610218bb1b');
     res.render('index', {grid: gameState});
 });
 
 app.post("/ttt/", function(req, res) {
-    res.set('X-CSE356', '61f9cee64261123151824fcd');
+    res.set('X-CSE356', '620bd941dd38a6610218bb1b');
     res.render('index', {grid: gameState});
 });
 
 app.post('/adduser', async function(req, res) {
-    console.log(req.body);
 
-    res.set('X-CSE356', '61f9cee64261123151824fcd');
+    res.set('X-CSE356', '620bd941dd38a6610218bb1b');
     let {username, password, email} = req.body;
+    console.log(`Received verify request for user: ${username} with email: ${email} and password: ${password}`);
 
     console.log(User)
 
@@ -68,7 +70,7 @@ app.post('/adduser', async function(req, res) {
 });
 
 app.post('/verify', async function(req, res) {
-    res.set('X-CSE356', '61f9cee64261123151824fcd');
+    res.set('X-CSE356', '620bd941dd38a6610218bb1b');
     let {email, key} = req.body;
     console.log(`Received verify request for user: ${email} with key: ${key}`);
 
@@ -86,6 +88,35 @@ app.post('/verify', async function(req, res) {
             });
         })
     })
+});
+
+app.post('/login', async function(req, res) {
+    res.set('X-CSE356', '620bd941dd38a6610218bb1b');
+    let {username, password} = req.body;
+    console.log(`Recieved login request for user: ${username} with password: ${password}`)
+
+    await User.findOne({username: username}).then((user) => {
+        if(password !== user.password){
+            console.log("invalid password")
+            return res.json({
+                status:"ERROR"
+            });
+        }
+
+        res.cookie('id', user._id);
+        return res.json({
+            status: "OK"
+        });
+    })
+
+});
+
+app.post('/logout', async function(req, res) {
+    res.set('X-CSE356', '620bd941dd38a6610218bb1b');
+    res.clearCookie('id');
+    return res.json({
+        status: "OK"
+    });
 });
 
 app.post('/ttt/play', function(req, res) {
@@ -106,7 +137,7 @@ app.post('/ttt/play', function(req, res) {
     }
 
     // send the response
-    res.set('X-CSE356', '61f9cee64261123151824fcd');
+    res.set('X-CSE356', '620bd941dd38a6610218bb1b');
     res.json(responseJson);
 });
 
