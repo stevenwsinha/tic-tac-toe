@@ -34,7 +34,7 @@ app.post("/ttt/", function(req, res) {
     res.render('index', {grid: gameState});
 });
 
-app.post('/adduser', function(req, res) {
+app.post('/adduser', async function(req, res) {
     res.set('X-CSE356', '61f9cee64261123151824fcd');
     let {username, password, email} = req.body;
 
@@ -62,7 +62,7 @@ app.post('/adduser', function(req, res) {
 
 });
 
-app.post('/verify', function(req, res) {
+app.post('/verify', async function(req, res) {
     res.set('X-CSE356', '61f9cee64261123151824fcd');
     let {email, key} = req.body;
 
