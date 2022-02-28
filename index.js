@@ -1,7 +1,7 @@
 const express = require('express');
 const pug = require('pug');
 const parser = require('body-parser')
-const {User, Game} = require('./server.js')
+const User = require('./server.js')
 const app = express();
 const port = 3003;
 
@@ -20,7 +20,6 @@ app.set('views', './views');
 app.set('view engine', 'pug');
 
 app.use(parser.json());
-app.use(parser.urlencoded({extended: true}))
 
 app.use(express.static('./'));
 
@@ -35,8 +34,12 @@ app.post("/ttt/", function(req, res) {
 });
 
 app.post('/adduser', async function(req, res) {
+    console.log(req.body);
+
     res.set('X-CSE356', '61f9cee64261123151824fcd');
     let {username, password, email} = req.body;
+
+    console.log(User)
 
     existingUser = await User.findOne({username: username});
     if(existingUser){
@@ -48,6 +51,8 @@ app.post('/adduser', async function(req, res) {
     let newUser = new User({
         username, password, email
     });
+
+    newUser.verified = false;
 
     let savedUser = newUser.save()
     if(!savedUser){
@@ -65,26 +70,22 @@ app.post('/adduser', async function(req, res) {
 app.post('/verify', async function(req, res) {
     res.set('X-CSE356', '61f9cee64261123151824fcd');
     let {email, key} = req.body;
+    console.log(`Received verify request for user: ${email} with key: ${key}`);
 
-    user = await User.findOne({email: email});
-
-    if(!user){
-        return res.json({
-            status:"ERROR"
-        });
-    }
-
-    if(key !== "abracadabra"){
-        return res.json({
-            status:"ERROR"
-        });
-    }
-    user.verified = true;
-    user.save().then(() => {
-        return res.json({
-            status: "OK"
-        });
-    });
+    await User.findOne({email: email}).then((user) => {
+        if(key !== "abracadabra"){
+            console.log("invalid key")
+            return res.json({
+                status:"ERROR"
+            });
+        }
+        user.verified = true;
+        user.save().then(() => {
+            return res.json({
+                status: "OK"
+            });
+        })
+    })
 });
 
 app.post('/ttt/play', function(req, res) {
