@@ -34,12 +34,16 @@ app.use(express.static('./'));
 
 app.get("/ttt/play", function(req, res) {
     res.set('X-CSE356', '620bd941dd38a6610218bb1b');
-    res.render('index', {grid: gameState});
+    res.render('index', {grid: [' ', ' ', ' ', 
+                                ' ', ' ', ' ',
+                                ' ', ' ', ' ']});
 });
 
 app.post("/ttt/", function(req, res) {
     res.set('X-CSE356', '620bd941dd38a6610218bb1b');
-    res.render('index', {grid: gameState});
+    res.render('index', {grid: [' ', ' ', ' ', 
+                                ' ', ' ', ' ',
+                                ' ', ' ', ' ']});
 });
 
 app.post('/adduser', async function(req, res) {
@@ -115,7 +119,7 @@ app.post('/login', async function(req, res) {
                 status:"ERROR"
             });
         }
-        
+
         if(password !== user.password){
             console.log("invalid password")
             return res.json({
@@ -152,7 +156,8 @@ app.post('/ttt/play', async function(req, res) {
         return res.json({
             status: "ERROR",
             grid: [],
-            winner: ' '
+            winner: ' ',
+            completed: false
         })
     }
 
@@ -164,7 +169,8 @@ app.post('/ttt/play', async function(req, res) {
             return res.json({
                 status: "ERROR",
                 grid: [],
-                winner: ' '
+                winner: ' ',
+                completed: false
             })
         }
 
@@ -174,7 +180,8 @@ app.post('/ttt/play', async function(req, res) {
             return res.json({
                         status: "OK",
                         grid: game.grid,
-                        winner: game.winner
+                        winner: game.winner,
+                        completed: game.completed
                     });
         }
 
@@ -187,7 +194,8 @@ app.post('/ttt/play', async function(req, res) {
             return res.json({
                 status: "ERROR",
                 grid: result.grid,
-                winner: result.winner
+                winner: result.winner,
+                completed: result.completed
             })
         }
 
@@ -201,7 +209,8 @@ app.post('/ttt/play', async function(req, res) {
             return res.json({
                 status: "ERROR",
                 grid: result.grid,
-                winner: result.winner
+                winner: result.winner,
+                completed: result.completed
             })
         }
 
@@ -211,7 +220,8 @@ app.post('/ttt/play', async function(req, res) {
                 return res.json({
                     status: "ERROR",
                     grid: [],
-                    winner: ' '
+                    winner: ' ',
+                    completed: false
                 });
             } 
         }
@@ -220,7 +230,8 @@ app.post('/ttt/play', async function(req, res) {
         return res.json({
                 status: "OK",
                 grid: result.grid,
-                winner: result.winner
+                winner: result.winner,
+                completed: result.completed
                 });
     });
 });

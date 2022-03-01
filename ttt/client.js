@@ -1,6 +1,4 @@
 var httpRequest;
-var board = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
-var winner
 const url = './play'
 
 // make a move locally, then send a request to update the server
@@ -9,12 +7,10 @@ function makeMoveRequest(move) {
     button = move.target
 
     // get the index of button clicked on 
-    index = parseInt(button.id.substring("button-".length));
+    index = button.id.substring("button-".length);
 
     // only allow moves on open squares, and if the game hasn't ended
-    if(board[index] !== ' ' || winner){
-        return;
-    }
+    if (button.innerHTML !== ' ')
 
     // create new request
     httpRequest = new XMLHttpRequest();
@@ -22,13 +18,8 @@ function makeMoveRequest(move) {
     // change the button's symbol
     button.innerHTML=('X')
 
-    // change the board
-    board[index] = 'X'
-
     // create the data to be sent
-    let requestJson = {};
-    requestJson.grid = board;
-    data = JSON.stringify(requestJson);
+    data = JSON.stringify({move: index});
     
     // send the request, wait for response, then call responseHandler()
     httpRequest.onreadystatechange = responseHandler;
@@ -42,24 +33,25 @@ function responseHandler(){
         if(httpRequest.status === 200) {
             // set our local board to include the server move
             var responseJson = JSON.parse(httpRequest.responseText);
-            board = responseJson.grid;
-
+            
             // update the board to include the server move
-            updateView();
+            updateView(responseJson.completed, responseJson.grid);
 
-            // if there's a winner, send an alert
-            if(responseJson.winner){
-                alert(`Winner: ${responseJson.winner}!`);
-                winner = responseJson.winner
+            // if the games over, send an alert
+            if(responseJson.completed){
+                alert(`Winner: ${responseJson.winner === ' ' ? "Tie" : responseJson.winner}!`);
             }
         }
     }
 }
 
 // set the innerhtml to the correct value
-function updateView() {
+function updateView(completed, grid) {
     for(let i = 0; i < 9; i++){
-        document.getElementById('button-' + i).innerHTML = (board[i] == ' ') ? '-' : board[i] 
+        if (completed) {
+            document.getElementById('button-' + i).innerHTML = '-'
+        }
+        document.getElementById('button-' + i).innerHTML = (grid[i] == ' ') ? '-' : grid[i] 
     }
 }
 
