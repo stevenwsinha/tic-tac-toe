@@ -110,6 +110,12 @@ app.post('/login', async function(req, res) {
     console.log(`Recieved login request for user: ${username} with password: ${password}`)
 
     await User.findOne({username: username}).then((user) => {
+        if (!user) {
+            return res.json({
+                status:"ERROR"
+            });
+        }
+        
         if(password !== user.password){
             console.log("invalid password")
             return res.json({
@@ -142,11 +148,13 @@ app.post('/ttt/play', async function(req, res) {
     let move = req.body.move
 
     if(!userID){
+        console.log("failed cookie authentication")
         return res.json({
-            status: "ERROR"
+            status: "ERROR",
+            grid: [],
+            winner: ' '
         })
     }
-
 
     console.log(`finding uncompleted game from user with id: ${userID}`)
     // get the uncompleted game from this user
@@ -154,12 +162,15 @@ app.post('/ttt/play', async function(req, res) {
         // if the game doesn't exit (shouldn't ever happen) return ERROR
         if (!game) {
             return res.json({
-                status: "ERROR"
+                status: "ERROR",
+                grid: [],
+                winner: ' '
             })
         }
 
         // check if move is null, if so return current stuff
-        if (move == null) {
+        if (move == 'null') {
+            console.log("null move received")
             return res.json({
                         status: "OK",
                         grid: game.grid,
@@ -167,16 +178,51 @@ app.post('/ttt/play', async function(req, res) {
                     });
         }
 
-        // otherwise, make a move
+        // play the game
+        console.log("player played square %s", move);
+        var result = playGame(parseInt(move), game.grid);
+        
+        // if there was an error, return error 
+        if (result.error) {
+            return res.json({
+                status: "ERROR",
+                grid: result.grid,
+                winner: result.winner
+            })
+        }
 
-        res.json({
-            status: "OK",
-        });
+        // otherwise, save the new game state
+        game.completed = result.completed;
+        game.grid = result.grid;
+        game.winner = result.winner;
+
+        let savedGame = game.save()
+        if (!savedGame) {
+            return res.json({
+                status: "ERROR",
+                grid: result.grid,
+                winner: result.winner
+            })
+        }
+
+        // if game was completed, make a new game
+        if (result.completed) {
+            if (createNewGame(userID) < 0) {
+                return res.json({
+                    status: "ERROR",
+                    grid: [],
+                    winner: ' '
+                });
+            } 
+        }
+
+        // return the grid and winner from the original game (not the new game that might have been created)
+        return res.json({
+                status: "OK",
+                grid: result.grid,
+                winner: result.winner
+                });
     });
-
-    // make our move, and get the board/winner object result
-    // var result = playGame(parseInt(move));
-
 });
 
 /*
@@ -189,15 +235,35 @@ app.listen(port, ()=> {
 
 
 /*
- *  HELPER FUNCTIONS
+ *  HELPER FUNCTIONS. THEY ARE AN UGLY MESS BUT THEY WORK. KEKW
  */
 
-function playGame (move) {
-    // make the players move
-    currentGame[move] = 'X'
+function playGame (move, grid) {
+    // check the players move is valid
+    if (grid[move] !== ' ') {
+        return {
+            grid: grid,
+            winner: ' ',
+            completed: false,
+            error: "invalid move"
+            }
+    }
+
+    // make the move
+    grid[move] = 'X'
    
     // check if they just won 
-    
+    let winner = checkWinner(grid);
+
+    if (winner !== ' ') {
+        return {
+                grid: grid,
+                winner: winner,
+                completed: true,
+                error: null
+                }
+    }
+
     // find the open squares
     let open =[];
     for(let i = 0; i < 9; i++){
@@ -208,7 +274,12 @@ function playGame (move) {
 
     // if there are no open squares, its a tie
     if (open.length === 0) {
-        return ' ';
+        return {
+            grid: grid,
+            winner: ' ',
+            completed: true,
+            error: null
+            }
     }
 
     // otherwise, make a move
@@ -217,9 +288,33 @@ function playGame (move) {
 
     // check if the server just won
     winner = checkWinner(grid);
-    if(winner !== ' '){
-        return winner
+    if (winner !== ' ') {
+        return {
+            grid: grid,
+            winner: winner,
+            completed: true,
+            error: null
+            }
     }
+
+    // if there was only 1 open square and wopr didn't just win, game is now a tie
+    if (open.length === 1) {
+        return {
+            grid: grid,
+            winner: ' ',
+            completed: true,
+            error: null
+            }
+    }
+
+    // otherwise, game continues
+    return {
+        grid: grid,
+        winner: ' ',
+        completed: false,
+        error: null
+    }
+
 }
 
 function checkWinner(grid){
