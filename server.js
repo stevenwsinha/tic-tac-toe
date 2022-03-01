@@ -29,7 +29,7 @@ const gameSchema = new mongoose.Schema({
     winner: String,
     owner: String,
     startDate: String, 
-    completed: {Boolean, default: false}
+    completed: Boolean,
 })
 
 // const Game = mongoose.model('Game', gameSchema);

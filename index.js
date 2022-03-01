@@ -10,20 +10,15 @@ const port = 3003;
 
 
 // TO DO: 
-// UPDATE POST AT TTT/PLAY TO CONFORM TO NEW GAME STANDARD
-// MAKE A SAVE GAME FUNCTION THAT SAVES A GAME TO THE DB, CALL IT CONDITIONALLY
-// TTT/PLAY POST HANDLER
+// REFACTOR CODE SO THE BOARD IS SAVED AFTER EVERY TTT/PLAY POST, 
+// EVERY POST TO TTT/PLAY WILL FETCH BOARD FROMD DATABASE, USING ID
+// STORED IN COOKIE TO FIND CORRECT BOARD
+// NULL MOVES FETCH THE BOARD AND JUST RES IT, ACTUAL MOVES FETCH BOARD
+// MAKE A MOVE THEN SAVE IT
 
 // MAKE FUNCTIONS THAT FETCH ALL GAMES/ FETCH FROM ONE USER/ FILTER GAMES, ETC 
 // THEY DONT NEED TO BE SEPARATE FUNCTIONS THEY CAN BE INSIDE THE POST RESPONSE 
 // TO THE DIFFERENT ENDPOINTS
-
-/*
- *  CREATE GLOBAL VAR FOR GAME BOARD
- */
-let gameState = [' ', ' ', ' ',
-                 ' ', ' ', ' ',  
-                 ' ', ' ', ' ']
 
 /*
  * SETUP EXPRESS REQUEST HANDLING 
@@ -93,11 +88,19 @@ app.post('/verify', async function(req, res) {
             });
         }
         user.verified = true;
-        user.save().then(() => {
+        user.save()
+
+        // make a new game for them
+        if (createNewGame(user._id) < 0) {
+            return res.json({
+                status: "ERROR"
+            });
+        } 
+        else{
             return res.json({
                 status: "OK"
             });
-        })
+        }
     })
 });
 
@@ -130,26 +133,50 @@ app.post('/logout', async function(req, res) {
     });
 });
 
-app.post('/ttt/play', function(req, res) {
-    // get the board sent by client
-    var ttt_board = req.body.grid;
+app.post('/ttt/play', async function(req, res) {
+    res.set('X-CSE356', '620bd941dd38a6610218bb1b');
 
-    // make our move, and get the winner
-    var result = playGame(ttt_board);
+    // get the requesting user id from the cookie
+    var userID = req.cookies['id'];
+    // get the move sent by client
+    let move = req.body.move
 
-    // save the new board
-    gameState = ttt_board;
-
-    // create the response object
-    var responseJson = {};
-    responseJson.grid = gameState;
-    if(result){
-        responseJson.winner = result;
+    if(!userID){
+        return res.json({
+            status: "ERROR"
+        })
     }
 
-    // send the response
-    res.set('X-CSE356', '620bd941dd38a6610218bb1b');
-    res.json(responseJson);
+
+    console.log(`finding uncompleted game from user with id: ${userID}`)
+    // get the uncompleted game from this user
+    await Game.findOne({owner: userID, completed: false}).then( (game) => {
+        // if the game doesn't exit (shouldn't ever happen) return ERROR
+        if (!game) {
+            return res.json({
+                status: "ERROR"
+            })
+        }
+
+        // check if move is null, if so return current stuff
+        if (move == null) {
+            return res.json({
+                        status: "OK",
+                        grid: game.grid,
+                        winner: game.winner
+                    });
+        }
+
+        // otherwise, make a move
+
+        res.json({
+            status: "OK",
+        });
+    });
+
+    // make our move, and get the board/winner object result
+    // var result = playGame(parseInt(move));
+
 });
 
 /*
@@ -165,13 +192,12 @@ app.listen(port, ()=> {
  *  HELPER FUNCTIONS
  */
 
-function playGame (grid) {
-    // check if the player just won, if so return
-    var winner = checkWinner(grid);
-    if(winner !== ' '){
-        return winner;
-    }
+function playGame (move) {
+    // make the players move
+    currentGame[move] = 'X'
    
+    // check if they just won 
+    
     // find the open squares
     let open =[];
     for(let i = 0; i < 9; i++){
@@ -194,7 +220,6 @@ function playGame (grid) {
     if(winner !== ' '){
         return winner
     }
-    return undefined;
 }
 
 function checkWinner(grid){
@@ -229,4 +254,28 @@ function checkWinner(grid){
     }
 
     return ' '
+}
+
+
+/*
+ * DATABASE FUNCTIONS
+ */
+
+function createNewGame(ownerId) {
+    // make a game with empty fields, belonging to passed in user._id
+    let newGame = new Game()
+    newGame.grid = [' ', ' ', ' ',
+                    ' ', ' ', ' ',
+                    ' ', ' ', ' '];
+    newGame.winner = ' ';
+    newGame.owner = ownerId; 
+    newGame.startDate = new Date().toString();
+    newGame.completed = false;
+
+    // save the game, if it succeeds return 1, fails return -1
+    savedGame = newGame.save()
+    if (!savedGame) {
+        return -1
+    }
+    return 1
 }
