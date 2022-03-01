@@ -28,6 +28,7 @@ function makeMoveRequest(move) {
     httpRequest.send(data);
 }
 
+// update the view and alert if the game is completed
 function responseHandler(){
     if(httpRequest.readyState === XMLHttpRequest.DONE) {
         if(httpRequest.status === 200) {
@@ -35,25 +36,27 @@ function responseHandler(){
             var responseJson = JSON.parse(httpRequest.responseText);
             
             // update the board to include the server move
-            updateView(responseJson.completed, responseJson.grid);
-
+            updateView(false, responseJson.grid);
+            
             // if the games over, send an alert
             if(responseJson.completed){
                 alert(`Winner: ${responseJson.winner === ' ' ? "Tie" : responseJson.winner}!`);
+                clearBoard();
             }
         }
     }
 }
 
-// set the innerhtml to the correct value
+// set the innerhtml to the updated value
 function updateView(completed, grid) {
     for(let i = 0; i < 9; i++){
-        if (completed) {
-            document.getElementById('button-' + i).innerHTML = '-'
-        }
-        else{
-            document.getElementById('button-' + i).innerHTML = (grid[i] == ' ') ? '-' : grid[i] 
-        }
+            document.getElementById('button-' + i).innerHTML = (grid[i] == ' ') ? '-' : grid[i]
+    }
+}
+
+function clearBoard() {
+    for(let i = 0; i < 9; i++) {
+        document.getElementById('button-' + i).innerHTML = '-'
     }
 }
 

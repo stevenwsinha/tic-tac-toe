@@ -8,9 +8,8 @@ const app = express();
 const port = 3003;
 
 /*
- * SETUP EXPRESS REQUEST HANDLING 
+ * SETUP EXPRESS MIDDLEWARE
  */
-
 app.set('views', './views');
 app.set('view engine', 'pug');
 
@@ -19,6 +18,11 @@ app.use(cookieParser());
 
 app.use(express.static('./'));
 
+/*
+ * SETUP EXPRESS REQUEST HANDLING 
+ */
+
+// front end rendering
 app.get("/ttt/play", function(req, res) {
     res.set('X-CSE356', '620bd941dd38a6610218bb1b');
     res.render('index', {grid: [' ', ' ', ' ', 
@@ -26,15 +30,8 @@ app.get("/ttt/play", function(req, res) {
                                 ' ', ' ', ' ']});
 });
 
-app.post("/ttt/", function(req, res) {
-    res.set('X-CSE356', '620bd941dd38a6610218bb1b');
-    res.render('index', {grid: [' ', ' ', ' ', 
-                                ' ', ' ', ' ',
-                                ' ', ' ', ' ']});
-});
-
+// create a new unverified user
 app.post('/adduser', async function(req, res) {
-
     res.set('X-CSE356', '620bd941dd38a6610218bb1b');
     let {username, password, email} = req.body;
     console.log(`Received verify request for user: ${username} with email: ${email} and password: ${password}`);
@@ -66,6 +63,7 @@ app.post('/adduser', async function(req, res) {
 
 });
 
+// verify a user account
 app.post('/verify', async function(req, res) {
     res.set('X-CSE356', '620bd941dd38a6610218bb1b');
     let {email, key} = req.body;
@@ -95,6 +93,7 @@ app.post('/verify', async function(req, res) {
     })
 });
 
+// start a user session
 app.post('/login', async function(req, res) {
     res.set('X-CSE356', '620bd941dd38a6610218bb1b');
     let {username, password} = req.body;
@@ -114,6 +113,13 @@ app.post('/login', async function(req, res) {
             });
         }
 
+        if (!user.verified) {
+            console.log("cannot log into unverified account")
+            return res.json({
+                status: "ERROR"
+            })
+        }
+
         res.cookie('id', user._id);
         return res.json({
             status: "OK"
@@ -122,6 +128,7 @@ app.post('/login', async function(req, res) {
 
 });
 
+// end the current session
 app.post('/logout', async function(req, res) {
     res.set('X-CSE356', '620bd941dd38a6610218bb1b');
     res.clearCookie('id');
@@ -130,6 +137,7 @@ app.post('/logout', async function(req, res) {
     });
 });
 
+// accept a move and play the game
 app.post('/ttt/play', async function(req, res) {
     res.set('X-CSE356', '620bd941dd38a6610218bb1b');
 
@@ -138,7 +146,7 @@ app.post('/ttt/play', async function(req, res) {
     // get the move sent by client
     let move = req.body.move
 
-    if(!userID){
+    if(!userID){        
         console.log("failed cookie authentication")
         return res.json({
             status: "ERROR",
@@ -223,7 +231,7 @@ app.post('/ttt/play', async function(req, res) {
     });
 });
 
-
+// list all games from all users
 app.post('/listgames', async function(req, res) {
     res.set('X-CSE356', '620bd941dd38a6610218bb1b');
 
@@ -259,6 +267,8 @@ app.post('/listgames', async function(req, res) {
     });
 });
 
+
+// get a game by ID
 app.post('/getgame', async function(req, res) {
     res.set('X-CSE356', '620bd941dd38a6610218bb1b');
 
@@ -298,6 +308,8 @@ app.post('/getgame', async function(req, res) {
      });
 });
 
+
+// get the score of a particular user
 app.post('/getscore', async function(req, res) {
     res.set('X-CSE356', '620bd941dd38a6610218bb1b');
 
@@ -314,7 +326,7 @@ app.post('/getscore', async function(req, res) {
         })
     }
 
-    await Game.find({}).then( (games)=> {
+    await Game.find({owner: userID}).then( (games)=> {
         humanscore = 0;
         woprscore = 0;
         tiescore = 0;
@@ -357,6 +369,9 @@ app.listen(port, ()=> {
  *  HELPER FUNCTIONS. THEY ARE AN UGLY MESS BUT THEY WORK. KEKW
  */
 
+// make the passed in move on the passed in grid, if it is valid
+// returns an object with the updated grid, a winner var, a completed boolean
+// and an error msg (null if no error)
 function playGame (move, grid) {
     // check the players move is valid
     if (grid[move] !== ' ') {
@@ -436,6 +451,8 @@ function playGame (move, grid) {
 
 }
 
+// check the winner fo the game
+// very primitive algorithm
 function checkWinner(grid){
     // check if somebody has won on the rows
     if( grid[0] === grid[1] && grid[0] === grid[2]){
@@ -475,6 +492,8 @@ function checkWinner(grid){
  * DATABASE FUNCTIONS
  */
 
+// make a new game, with blank grid, owner being 
+// user with the passed in ID
 function createNewGame(ownerId) {
     // make a game with empty fields, belonging to passed in user._id
     let newGame = new Game()
