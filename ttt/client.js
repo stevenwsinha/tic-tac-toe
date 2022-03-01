@@ -51,7 +51,9 @@ function updateView(completed, grid) {
         if (completed) {
             document.getElementById('button-' + i).innerHTML = '-'
         }
-        document.getElementById('button-' + i).innerHTML = (grid[i] == ' ') ? '-' : grid[i] 
+        else{
+            document.getElementById('button-' + i).innerHTML = (grid[i] == ' ') ? '-' : grid[i] 
+        }
     }
 }
 
