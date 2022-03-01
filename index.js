@@ -4,21 +4,8 @@ const parser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const {User} = require('./server.js') 
 const {Game} = require('./server.js');
-const { all } = require('express/lib/application');
 const app = express();
 const port = 3003;
-
-
-// TO DO: 
-// REFACTOR CODE SO THE BOARD IS SAVED AFTER EVERY TTT/PLAY POST, 
-// EVERY POST TO TTT/PLAY WILL FETCH BOARD FROMD DATABASE, USING ID
-// STORED IN COOKIE TO FIND CORRECT BOARD
-// NULL MOVES FETCH THE BOARD AND JUST RES IT, ACTUAL MOVES FETCH BOARD
-// MAKE A MOVE THEN SAVE IT
-
-// MAKE FUNCTIONS THAT FETCH ALL GAMES/ FETCH FROM ONE USER/ FILTER GAMES, ETC 
-// THEY DONT NEED TO BE SEPARATE FUNCTIONS THEY CAN BE INSIDE THE POST RESPONSE 
-// TO THE DIFFERENT ENDPOINTS
 
 /*
  * SETUP EXPRESS REQUEST HANDLING 
@@ -235,6 +222,127 @@ app.post('/ttt/play', async function(req, res) {
                 });
     });
 });
+
+
+app.post('/listgames', async function(req, res) {
+    res.set('X-CSE356', '620bd941dd38a6610218bb1b');
+
+    // get the requesting user id from the cookie
+    var userID = req.cookies['id'];
+
+    if(!userID){
+        console.log("failed cookie authentication")
+        return res.json({
+            status: "ERROR",
+            games: []
+        })
+    }
+
+    await Game.find({}).then( (games)=> {
+        console.log(games);
+
+        gameArray = [];
+
+        for (let i = 0; i < games.length; i++) {
+            if(games[i].completed){
+                gameArray.push({
+                    id: games[i]._id,
+                    start_date: games[i].startDate
+                })
+            }
+        }
+
+        res.json({
+            status: "OK",
+            games: gameArray
+        })
+    });
+});
+
+app.post('/getgame', async function(req, res) {
+    res.set('X-CSE356', '620bd941dd38a6610218bb1b');
+
+     // get the requesting user id from the cookie
+     var userID = req.cookies['id'];
+
+     if(!userID){
+         console.log("failed cookie authentication")
+         return res.json({
+             status: "ERROR",
+             grid: [],
+             winner: ' ',
+             completed: false
+         })
+     }
+
+     let id = req.body.id
+     console.log(`Looking for game with id: ${id}`);
+
+     await Game.findById(id).then( (game)=>{
+        if (!game) {
+            return res.json({
+                status: "ERROR",
+                grid: [],
+                winner: ' ',
+                completed: false
+            });
+        }
+
+        return res.json({
+                    status: "OK",
+                    grid: game.grid,
+                    winner: game.winner,
+                    completed: game.completed
+                });
+
+     });
+});
+
+app.post('/getscore', async function(req, res) {
+    res.set('X-CSE356', '620bd941dd38a6610218bb1b');
+
+    // get the requesting user id from the cookie
+    var userID = req.cookies['id'];
+
+    if(!userID){
+        console.log("failed cookie authentication")
+        return res.json({
+            status: "ERROR",
+            human: 0,
+            wopr: 0,
+            tie: 0,
+        })
+    }
+
+    await Game.find({}).then( (games)=> {
+        humanscore = 0;
+        woprscore = 0;
+        tiescore = 0;
+
+        for (let i = 0; i < games.length; i++) {
+            let game = games[i];
+            if (game.completed) {
+                if (game.winner === 'X') {
+                    humanscore++;
+                }
+                else if (game.winner === 'O') {
+                    woprscore++;
+                }
+                else if (game.winner === ' ') {
+                    tiescore++;
+                }
+            }
+        }
+
+        res.json({
+            status: "OK",
+            human: humanscore,
+            wopr: woprscore,
+            tie: tiescore,
+        })
+    });
+});
+
 
 /*
  *  SET EXPRESS TO LISTEN
