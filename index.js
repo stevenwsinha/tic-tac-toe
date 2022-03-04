@@ -2,8 +2,8 @@ const express = require('express');
 const pug = require('pug');
 const parser = require('body-parser')
 const cookieParser = require('cookie-parser')
-const {User} = require('./server.js') 
-const {Game} = require('./server.js');
+const {User} = require('./db.js') 
+const {Game} = require('./db.js');
 const app = express();
 const port = 3003;
 
