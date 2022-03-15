@@ -24,6 +24,10 @@ app.use(express.static('./'));
  */
 
 // front end rendering
+app.get("/", function(req, res) {
+    res.redirect('/ttt/play');
+})
+
 app.get("/ttt/play", function(req, res) {
     res.render('index', {grid: [' ', ' ', ' ', 
                                 ' ', ' ', ' ',
