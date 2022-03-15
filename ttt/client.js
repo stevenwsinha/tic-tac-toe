@@ -9,23 +9,23 @@ function makeMoveRequest(move) {
     // get the index of button clicked on 
     index = button.id.substring("button-".length);
 
-    // only allow moves on open squares, and if the game hasn't ended
-    if (button.innerHTML !== ' ')
+    // only allow moves on open squares
+    if (button.innerHTML !== ' ') {
+         // create new request
+        httpRequest = new XMLHttpRequest();
 
-    // create new request
-    httpRequest = new XMLHttpRequest();
+        // change the button's symbol
+        button.innerHTML=('X')
 
-    // change the button's symbol
-    button.innerHTML=('X')
-
-    // create the data to be sent
-    data = JSON.stringify({move: index});
+        // create the data to be sent
+        data = JSON.stringify({move: index});
     
-    // send the request, wait for response, then call responseHandler()
-    httpRequest.onreadystatechange = responseHandler;
-    httpRequest.open('POST', url);
-    httpRequest.setRequestHeader('Content-Type', 'application/json');
-    httpRequest.send(data);
+        // send the request, wait for response, then call responseHandler()
+        httpRequest.onreadystatechange = responseHandler;
+        httpRequest.open('POST', url);
+        httpRequest.setRequestHeader('Content-Type', 'application/json');
+        httpRequest.send(data);
+    }
 }
 
 // update the view and alert if the game is completed
