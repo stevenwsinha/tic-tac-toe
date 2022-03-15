@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
  *  SET UP MONGOOSE CONNECTION
  */
 mongoose
-    .connect('mongodb://localhost:27017/warmup2')
+    .connect('mongodb://db:27017/warmup2')
     .catch(e => {
         console.error('Connection error', e.message);
     })
