@@ -74,9 +74,7 @@ app.post('/adduser', async function(req, res) {
         });
     }
 
-    return res.json({
-        status: "OK"
-    })  
+    return res.redirect('/ttt/play');
 
 });
 
@@ -102,9 +100,7 @@ app.post('/verify', async function(req, res) {
             });
         } 
         else{
-            return res.json({
-                status: "OK"
-            });
+            return res.redirect('/ttt/play');
         }
     })
 });
@@ -136,9 +132,7 @@ app.post('/login', async function(req, res) {
         }
 
         res.cookie('id', user._id);
-        return res.json({
-            status: "OK"
-        });
+        return res.redirect('/ttt/play');
     })
 
 });
