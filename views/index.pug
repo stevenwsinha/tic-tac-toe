@@ -7,18 +7,14 @@ html
     h1(class='title', id='main-title') 
       | TIC TAC TOE   
     h2(class='title', id='subtitle')
-      | BY SMOGE GROUP 
-    a(href = '/ttt/login')
+      | BY STEVEN SINHA  
+    a(href = '../login')
       button(type='button' id='login-button') LOGIN 
-    a(href = '/ttt/adduser')
-      button(type='button' id='login-button') REGISTER  
+    a(href = '/verify')
+      button(type='button' id='verify-button') VERIFY ACCOUNT   
+    a(href = '/adduser')
+      button(type='button' id='adduser-button') REGISTER
     img(src='public/cat.jpeg' id='cat-image')
-    form(action='/ttt/', method='POST')
-      div
-        label(name='name')
-        input(name='name' value='')
-      div
-        button Submit
     div.board
       each val, index in grid
         button(type='button' class='play-button' id='button-' + index) #{grid[index] == ' ' ? '-' : grid[index]}

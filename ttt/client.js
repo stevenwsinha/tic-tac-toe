@@ -35,8 +35,14 @@ function responseHandler(){
             // set our local board to include the server move
             var responseJson = JSON.parse(httpRequest.responseText);
             
+            if (responseJson.grid[0] == undefined) {
+                alert("You must be logged in on a verified account to play")
+                clearBoard()
+                return
+            }
+
             // update the board to include the server move
-            updateView(false, responseJson.grid);
+            updateView(responseJson.grid);
             
             // if the games over, send an alert
             if(responseJson.completed){
@@ -48,7 +54,7 @@ function responseHandler(){
 }
 
 // set the innerhtml to the updated value
-function updateView(completed, grid) {
+function updateView(grid) {
     for(let i = 0; i < 9; i++){
             document.getElementById('button-' + i).innerHTML = (grid[i] == ' ') ? '-' : grid[i]
     }

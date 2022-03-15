@@ -1,0 +1,13 @@
+html
+  head
+    title ttt verify 
+  body
+    form(action='/verify', method='POST')
+      div
+        p email 
+        input(type="text" name="email" placeholder="")
+      div
+        p secret key (hint: its 'abracadabra')  
+        input(type="text" name="key" placeholder="")
+      div
+        input(type="submit")
